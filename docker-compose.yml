@@ -1,0 +1,10 @@
+version: "2.1"
+ 
+services:
+
+  cron:
+    image: cron:$VERSION_CRON
+    restart: always
+    network_mode: "host"
+    volumes:
+      - ./crontab:/etc/crontab:Z
