@@ -1,0 +1,101 @@
+jobs:
+  - name: test-sendmail
+    command: echo "test sending a mail"
+    schedule:
+      minute: "20"
+      hour: "0"
+    captureStdout: true
+    utc: false
+    onSuccess:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1
+
+#  - name: duplicity-stack
+#    command: docker -H tcp://127.0.0.1:2375 exec cron-duplicity /root/gen_bootstrap.sh
+#    schedule:
+#      minute: "26"
+#      hour: "4"
+#    utc: false
+#    captureStdout: true
+#    captureStderr: true
+
+  - name: mysql-stack-01
+    command: docker -H tcp://127.0.0.1:2375 exec  mysql-server /root/nettoyer_quotas.sh
+    schedule:
+      minute: "3"
+      hour: "0"
+    utc: false
+    captureStdout: true
+    captureStderr: true
+    onFailure:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1
+
+  - name: mysql-stack-02
+    command: docker -H tcp://127.0.0.1:2375 exec  mysql-server sh -c "mysqldump --databases mysql -uroot -pXXXXXXX > /mnt/dumps/mysql_dump-mysql_`date +\%d-\%m-\%Y`"
+    schedule:
+      minute: "3"
+      hour: "1"
+    utc: false
+    captureStdout: true
+    captureStderr: true
+    onFailure:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1
+
+  - name: mysql-stack-03
+    command: docker -H tcp://127.0.0.1:2375 exec  mysql-server sh -c "mysqldump --databases gogs owncloud semanticscuttle -uroot -pXXXXXXX > /mnt/dumps/mysql_dump_`date +\%d-\%m-\%Y`"
+    schedule:
+      minute: "13"
+      hour: "1"
+    utc: false
+    captureStdout: true
+    captureStderr: true
+    onFailure:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1
+
+  - name: reverse-proxy-stack
+    command: docker -H tcp://127.0.0.1:2375 exec dockerreverseproxystack_reverse-proxy_1 certbot renew
+    schedule:
+      minute: "5"
+      hour: "2"
+    utc: false
+    captureStdout: true
+    captureStderr: true
+    failsWhen:
+      producesStderr: false
+      producesStdout: false
+    onFailure:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1
+
+  - name: mail-stack
+    command: docker -H tcp://127.0.0.1:2375 exec dovecot /root/dovecot_expire.sh
+    schedule:
+      minute: "30"
+      hour: "0"
+    utc: false
+    captureStdout: true
+    captureStderr: true
+    onFailure:
+      report:
+        mail:
+          from: ovh1
+          to: mail@mail.net
+          smtpHost: 127.0.0.1

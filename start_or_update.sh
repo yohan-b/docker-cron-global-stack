@@ -10,9 +10,9 @@ then
         exit 1
     fi
 fi
-openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc | tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab
-sudo chown root. crontab
-sudo chmod 644 crontab
+openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc | tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab.yaml
+sudo chown root. crontab.yaml
+sudo chmod 644 crontab.yaml
 
 unset VERSION_CRON
 export VERSION_CRON=$(git ls-remote https://git.scimetis.net/yohan/docker-cron.git| head -1 | cut -f 1|cut -c -10)
