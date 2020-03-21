@@ -1,4 +1,5 @@
 #!/bin/bash
+test -z $KEY && { echo "KEY is not defined."; exit 1; }
 test -z $1 || HOST="_$1"
 test -z $2 || INSTANCE="_$2"
 if ! test -f ~/secrets.tar.gz.enc
@@ -10,7 +11,8 @@ then
         exit 1
     fi
 fi
-openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc | tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab.yaml
+openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc | sudo tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab.yaml \
+    || { echo "Could not extract from secrets archive, exiting."; rm -f ~/secrets.tar.gz.enc; exit 1; }
 sudo chown root. crontab.yaml
 sudo chmod 644 crontab.yaml
 
