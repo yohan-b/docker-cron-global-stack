@@ -11,10 +11,14 @@ then
         exit 1
     fi
 fi
-openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc | sudo tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab.yaml \
+openssl enc -aes-256-cbc -d -in ~/secrets.tar.gz.enc \
+    | sudo tar -zxv --strip 2 secrets/docker-cron-global-stack${HOST}${INSTANCE}/crontab.yaml \
+                              secrets/docker-cron-global-stack${HOST}${INSTANCE}/scripts \
+                              secrets/bootstrap/id_rsa secrets/bootstrap/id_rsa.pub \
     || { echo "Could not extract from secrets archive, exiting."; rm -f ~/secrets.tar.gz.enc; exit 1; }
-sudo chown root. crontab.yaml
+sudo chown root. crontab.yaml id_rsa id_rsa.pub config scripts
 sudo chmod 644 crontab.yaml
+sudo chmod 400 id_rsa id_rsa.pub config
 
 unset VERSION_CRON
 export VERSION_CRON=$(git ls-remote https://git.scimetis.net/yohan/docker-cron.git| head -1 | cut -f 1|cut -c -10)

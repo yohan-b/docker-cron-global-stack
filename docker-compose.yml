@@ -8,3 +8,7 @@ services:
     network_mode: "host"
     volumes:
       - ./crontab.yaml:/root/crontab.yaml:Z
+      - ./id_rsa:/root/.ssh/id_rsa:Z
+      - ./id_rsa.pub:/root/.ssh/id_rsa.pub:Z
+      - ./config:/root/.ssh/config:Z
+      - ./scripts:/root/scripts:Z
