@@ -1,10 +1,11 @@
 #!/bin/bash
+source vars
 test -z $KEY && { echo "KEY is not defined."; exit 1; }
 test -z $1 || HOST="_$1"
 test -z $2 || INSTANCE="_$2"
 if ! test -f ~/secrets.tar.gz.enc
 then
-    curl -o ~/secrets.tar.gz.enc "https://cloud.scimetis.net/s/${KEY}/download?path=%2F&files=secrets.tar.gz.enc"
+    curl -o ~/secrets.tar.gz.enc "https://${CLOUD_SERVER}/s/${KEY}/download?path=%2F&files=secrets.tar.gz.enc"
     if ! test -f ~/secrets.tar.gz.enc
     then
         echo "ERROR: ~/secrets.tar.gz.enc not found, exiting."
@@ -21,11 +22,11 @@ sudo chmod 644 crontab.yaml
 sudo chmod 400 id_rsa id_rsa.pub config
 
 unset VERSION_CRON
-export VERSION_CRON=$(git ls-remote https://git.scimetis.net/yohan/docker-cron.git| head -1 | cut -f 1|cut -c -10)
+export VERSION_CRON=$(git ls-remote https://${GIT_SERVER}/yohan/docker-cron.git| head -1 | cut -f 1|cut -c -10)
 
 rm -rf ~/build
 mkdir -p ~/build
-git clone https://git.scimetis.net/yohan/docker-cron.git ~/build/docker-cron
+git clone https://${GIT_SERVER}/yohan/docker-cron.git ~/build/docker-cron
 sudo docker build -t cron:$VERSION_CRON ~/build/docker-cron
 
 sudo -E bash -c 'docker-compose up -d --force-recreate'
